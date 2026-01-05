@@ -1,0 +1,84 @@
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbar for better look */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c5a365;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #b08d55;
+}
+
+/* Auto-suggestion Dropdown */
+#suggestions-list {
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+#suggestions-list li {
+    padding: 10px;
+    cursor: pointer;
+    background: white;
+    border-bottom: 1px solid #eee;
+}
+
+#suggestions-list li:hover {
+    background-color: #f9fafb;
+    color: #c5a365;
+}
+
+/* Hide scrollbar for suggestions */
+#suggestions-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+/* Modal Styles */
+.modal {
+    transition: opacity 0.3s ease-in-out;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.modal.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Print Styles */
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    #receipt-modal, #receipt-modal * {
+        visibility: visible;
+    }
+    #receipt-modal {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: white;
+        z-index: 9999;
+    }
+    .no-print {
+        display: none !important;
+    }
+}

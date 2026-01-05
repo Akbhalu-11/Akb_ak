@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Bookings - Ayush</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1a1a1a',
+                        secondary: '#c5a365',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body class="bg-gray-50 text-primary">
+    <nav class="bg-white shadow-sm fixed w-full z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="index.html" class="flex items-center space-x-2">
+                        <i class="fas fa-hotel text-secondary text-2xl"></i>
+                        <span id="site-name" class="text-xl font-bold tracking-tight">Ayush</span>
+                    </a>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html" class="text-gray-600 hover:text-secondary transition">Home</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24">
+        <h1 class="text-3xl font-bold text-gray-900 mb-6">My Bookings</h1>
+        <div id="booking-list" class="bg-white rounded-lg shadow-sm overflow-hidden">
+            <table class="w-full text-left text-sm text-gray-600">
+                <thead class="bg-gray-50 text-gray-800 font-semibold uppercase tracking-wider">
+                    <tr>
+                        <th class="px-6 py-3">ID</th>
+                        <th class="px-6 py-3">Room</th>
+                        <th class="px-6 py-3">Check In</th>
+                        <th class="px-6 py-3">Check Out</th>
+                        <th class="px-6 py-3">Guests</th>
+                        <th class="px-6 py-3">Payment</th>
+                        <th class="px-6 py-3">Amount</th>
+                        <th class="px-6 py-3 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="booking-tbody" class="divide-y divide-gray-100">
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script src="script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            applySettings();
+            const user = getCurrentUser();
+            if (!user) {
+                alert('Please login to view your bookings.');
+                window.location.href = 'index.html';
+                return;
+            }
+            const bookings = getBookings().filter(b => b.username === user.username).reverse();
+            const tbody = document.getElementById('booking-tbody');
+            tbody.innerHTML = '';
+            if (bookings.length === 0) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = '<td colspan="8" class="px-6 py-10 text-center text-gray-500">No bookings yet.</td>';
+                tbody.appendChild(tr);
+                return;
+            }
+            bookings.forEach(b => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="px-6 py-4 font-medium text-gray-900">${b.id}</td>
+                    <td class="px-6 py-4">${b.roomName}</td>
+                    <td class="px-6 py-4">${b.checkIn}</td>
+                    <td class="px-6 py-4">${b.checkOut}</td>
+                    <td class="px-6 py-4">${b.guests}</td>
+                    <td class="px-6 py-4">
+                        <span class="text-xs">${b.paymentStatus || 'Pending'} · ${b.paymentMethod || 'N/A'}</span>
+                        ${b.paymentId ? `<div class="text-xs text-gray-500">ID: ${b.paymentId}</div>` : ''}
+                    </td>
+                    <td class="px-6 py-4 font-bold text-gray-900">${b.totalAmount}</td>
+                    <td class="px-6 py-4 text-right space-x-2">
+                        ${b.paymentStatus !== 'Paid' && b.paymentMethod !== 'Pay at Hotel' ? `<button class="text-blue-600 hover:text-blue-900" onclick="retryPayment('${b.id}')">Pay Now</button>` : ''}
+                        <button class="text-gray-600 hover:text-gray-900" onclick="viewReceipt('${b.id}')">Receipt</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        });
+        function retryPayment(id) {
+            const bookings = getBookings();
+            const b = bookings.find(x => x.id === id);
+            if (!b) return;
+            const totalText = b.totalAmount;
+            const amountPaise = parseInt(totalText.replace(/[^0-9]/g, '')) * 100;
+            startRazorpayPayment({
+                amountPaise,
+                bookingId: b.id,
+                username: b.username,
+                roomName: b.roomName,
+                paymentMethod: b.paymentMethod || 'Razorpay',
+                nightsText: '',
+                roomCostText: '',
+                mealCostText: '',
+                taxText: '',
+                totalText: totalText
+            });
+        }
+        function viewReceipt(id) {
+            const bookings = getBookings();
+            const b = bookings.find(x => x.id === id);
+            if (!b) return;
+            alert('Booking ' + b.id + '\\nRoom: ' + b.roomName + '\\nCheck In: ' + b.checkIn + '\\nCheck Out: ' + b.checkOut + '\\nAmount: ' + b.totalAmount + '\\nPayment: ' + (b.paymentStatus || 'Pending'));
+        }
+    </script>
+</body>
+</html>

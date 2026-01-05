@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ayush Admin Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1a1a1a',
+                        secondary: '#c5a365',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-gray-900 text-white flex flex-col hidden md:flex">
+            <div class="p-6 flex items-center space-x-2 border-b border-gray-800">
+                <i class="fas fa-hotel text-secondary text-2xl"></i>
+                <span class="text-xl font-bold tracking-tight">Ayush Admin</span>
+            </div>
+            <nav class="flex-1 px-4 py-6 space-y-2">
+                <a href="#" onclick="showSection('dashboard')" class="flex items-center space-x-3 px-4 py-3 bg-gray-800 rounded-lg text-white hover:bg-gray-700 transition" id="nav-dashboard">
+                    <i class="fas fa-chart-line w-5"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" onclick="showSection('rooms')" class="flex items-center space-x-3 px-4 py-3 text-gray-400 hover:bg-gray-800 hover:text-white rounded-lg transition" id="nav-rooms">
+                    <i class="fas fa-bed w-5"></i>
+                    <span>Rooms</span>
+                </a>
+                <a href="#" onclick="showSection('bookings')" class="flex items-center space-x-3 px-4 py-3 text-gray-400 hover:bg-gray-800 hover:text-white rounded-lg transition" id="nav-bookings">
+                    <i class="fas fa-calendar-check w-5"></i>
+                    <span>Bookings</span>
+                </a>
+                <a href="#" onclick="showSection('users')" class="flex items-center space-x-3 px-4 py-3 text-gray-400 hover:bg-gray-800 hover:text-white rounded-lg transition" id="nav-users">
+                    <i class="fas fa-users w-5"></i>
+                    <span>Users</span>
+                </a>
+                <a href="#" onclick="showSection('settings')" class="flex items-center space-x-3 px-4 py-3 text-gray-400 hover:bg-gray-800 hover:text-white rounded-lg transition" id="nav-settings">
+                    <i class="fas fa-cog w-5"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+            <div class="p-4 border-t border-gray-800">
+                <a href="index.html" class="flex items-center space-x-3 px-4 py-2 text-gray-400 hover:text-white transition">
+                    <i class="fas fa-sign-out-alt w-5"></i>
+                    <span>Back to Site</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Mobile Header -->
+            <header class="md:hidden bg-white shadow-sm z-10 p-4 flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <i class="fas fa-hotel text-secondary text-xl"></i>
+                    <span class="text-lg font-bold">Ayush Admin</span>
+                </div>
+                <button onclick="toggleSidebar()" class="text-gray-600 focus:outline-none">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </header>
+
+            <!-- Content Area -->
+            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">
+                
+                <!-- Dashboard Section -->
+                <div id="section-dashboard" class="space-y-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Dashboard Overview</h2>
+                    <div class="flex flex-wrap gap-2 items-center">
+                        <span class="text-sm text-gray-600">Period:</span>
+                        <button onclick="setPeriod('weekly')" id="period-weekly" class="px-3 py-1 rounded bg-gray-200 text-gray-800 hover:bg-gray-300 text-sm">Weekly</button>
+                        <button onclick="setPeriod('monthly')" id="period-monthly" class="px-3 py-1 rounded bg-gray-200 text-gray-800 hover:bg-gray-300 text-sm">Monthly</button>
+                        <button onclick="setPeriod('yearly')" id="period-yearly" class="px-3 py-1 rounded bg-gray-200 text-gray-800 hover:bg-gray-300 text-sm">Yearly</button>
+                        <button onclick="setPeriod('all')" id="period-all" class="px-3 py-1 rounded bg-gray-200 text-gray-800 hover:bg-gray-300 text-sm">All Time</button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-white p-6 rounded-lg shadow-sm border-l-4 border-secondary">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="text-gray-500 text-sm">Total Bookings</p>
+                                    <h3 class="text-2xl font-bold text-gray-800" id="dash-bookings">0</h3>
+                                </div>
+                                <div class="bg-yellow-100 p-3 rounded-full text-secondary">
+                                    <i class="fas fa-calendar-check text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow-sm border-l-4 border-blue-500">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="text-gray-500 text-sm">Total Rooms</p>
+                                    <h3 class="text-2xl font-bold text-gray-800" id="dash-rooms">0</h3>
+                                </div>
+                                <div class="bg-blue-100 p-3 rounded-full text-blue-500">
+                                    <i class="fas fa-bed text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow-sm border-l-4 border-green-500">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="text-gray-500 text-sm">Total Users</p>
+                                    <h3 class="text-2xl font-bold text-gray-800" id="dash-users">0</h3>
+                                </div>
+                                <div class="bg-green-100 p-3 rounded-full text-green-500">
+                                    <i class="fas fa-users text-xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-white p-6 rounded-lg shadow-sm">
+                            <h4 class="font-semibold text-gray-800 mb-4">Bookings</h4>
+                            <div id="chart-bookings" class="h-40 flex items-end gap-2"></div>
+                            <div id="chart-bookings-labels" class="mt-2 flex justify-between text-xs text-gray-500"></div>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow-sm">
+                            <h4 class="font-semibold text-gray-800 mb-4">Payments (₹)</h4>
+                            <div id="chart-payments" class="h-40 flex items-end gap-2"></div>
+                            <div id="chart-payments-labels" class="mt-2 flex justify-between text-xs text-gray-500"></div>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow-sm">
+                            <h4 class="font-semibold text-gray-800 mb-4">User Active (Logins)</h4>
+                            <div id="chart-logins" class="h-40 flex items-end gap-2"></div>
+                            <div id="chart-logins-labels" class="mt-2 flex justify-between text-xs text-gray-500"></div>
+                        </div>
+                        <div class="bg-white p-6 rounded-lg shadow-sm">
+                            <h4 class="font-semibold text-gray-800 mb-4">Website Visitors</h4>
+                            <div id="chart-visits" class="h-40 flex items-end gap-2"></div>
+                            <div id="chart-visits-labels" class="mt-2 flex justify-between text-xs text-gray-500"></div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Bookings Table -->
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                        <div class="px-6 py-4 border-b border-gray-100">
+                            <h3 class="text-lg font-bold text-gray-800">Recent Bookings</h3>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm text-gray-600">
+                                <thead class="bg-gray-50 text-gray-800 font-semibold uppercase tracking-wider">
+                                    <tr>
+                                        <th class="px-6 py-3">Booking ID</th>
+                                        <th class="px-6 py-3">User</th>
+                                        <th class="px-6 py-3">Room</th>
+                                        <th class="px-6 py-3">Date</th>
+                                        <th class="px-6 py-3">Status</th>
+                                        <th class="px-6 py-3">Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100" id="recent-bookings-table">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rooms Section -->
+                <div id="section-rooms" class="hidden space-y-6">
+                    <div class="flex justify-between items-center">
+                        <h2 class="text-2xl font-bold text-gray-800">Manage Rooms</h2>
+                        <button onclick="openRoomModal()" class="bg-secondary text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition">
+                            <i class="fas fa-plus mr-2"></i> Add Room
+                        </button>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm text-gray-600">
+                                <thead class="bg-gray-50 text-gray-800 font-semibold uppercase tracking-wider">
+                                    <tr>
+                                        <th class="px-6 py-3">Image</th>
+                                        <th class="px-6 py-3">Name</th>
+                                        <th class="px-6 py-3">City</th>
+                                        <th class="px-6 py-3">Price</th>
+                                        <th class="px-6 py-3">Guests</th>
+                                        <th class="px-6 py-3 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100" id="rooms-table">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bookings Section -->
+                <div id="section-bookings" class="hidden space-y-6">
+                    <h2 class="text-2xl font-bold text-gray-800">All Bookings</h2>
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm text-gray-600">
+                                <thead class="bg-gray-50 text-gray-800 font-semibold uppercase tracking-wider">
+                                    <tr>
+                                        <th class="px-6 py-3">ID</th>
+                                        <th class="px-6 py-3">User</th>
+                                        <th class="px-6 py-3">Room</th>
+                                        <th class="px-6 py-3">Check In/Out</th>
+                                        <th class="px-6 py-3">Payment</th>
+                                        <th class="px-6 py-3">Amount</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100" id="all-bookings-table">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Users Section -->
+                <div id="section-users" class="hidden space-y-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Registered Users</h2>
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm text-gray-600">
+                                <thead class="bg-gray-50 text-gray-800 font-semibold uppercase tracking-wider">
+                                    <tr>
+                                        <th class="px-6 py-3">Username</th>
+                                        <th class="px-6 py-3">Email</th>
+                                        <th class="px-6 py-3">Role</th>
+                                        <th class="px-6 py-3 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100" id="users-table">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Section -->
+                <div id="section-settings" class="hidden space-y-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Website Settings</h2>
+                    <div class="bg-white rounded-lg shadow-sm p-6 space-y-4">
+                        <form id="settings-form" onsubmit="handleSettingsSubmit(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Website Name</label>
+                                <input type="text" id="set-site-name" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">About Intro</label>
+                                <textarea id="set-about-p1" rows="2" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">About Paragraph 1</label>
+                                <textarea id="set-about-p2" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">About Paragraph 2</label>
+                                <textarea id="set-about-p3" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"></textarea>
+                            </div>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Contact Email</label>
+                                    <input type="email" id="set-contact-email" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Contact Phone</label>
+                                    <input type="text" id="set-contact-phone" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Contact Address</label>
+                                    <input type="text" id="set-contact-address" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3">
+                                </div>
+                            </div>
+                            <div class="flex justify-end">
+                                <button type="submit" class="bg-secondary text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition">Save Settings</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <!-- Add/Edit Room Modal -->
+    <div id="room-modal" class="fixed inset-0 z-50 hidden overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true" onclick="closeRoomModal()"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4" id="modal-title">Add New Room</h3>
+                    <form id="room-form" onsubmit="handleRoomSubmit(event)">
+                        <input type="hidden" id="room-id">
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Room Name</label>
+                                <input type="text" id="room-name" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-secondary focus:border-secondary sm:text-sm">
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Price</label>
+                                    <input type="number" id="room-price" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-secondary focus:border-secondary sm:text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">City</label>
+                                    <input type="text" id="room-city" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-secondary focus:border-secondary sm:text-sm">
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Guests</label>
+                                    <input type="number" id="room-guests" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-secondary focus:border-secondary sm:text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700">Rating</label>
+                                    <input type="number" step="0.1" max="5" id="room-rating" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-secondary focus:border-secondary sm:text-sm">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Description</label>
+                                <textarea id="room-desc" rows="3" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-secondary focus:border-secondary sm:text-sm"></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Image URLs (comma separated)</label>
+                                <input type="text" id="room-image" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-secondary focus:border-secondary sm:text-sm" placeholder="https://img1,...,https://img2,...">
+                            </div>
+                        </div>
+                        <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse -mx-6 -mb-4 mt-6">
+                            <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-secondary text-base font-medium text-white hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-secondary sm:ml-3 sm:w-auto sm:text-sm">
+                                Save
+                            </button>
+                            <button type="button" onclick="closeRoomModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm">
+                                Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>
